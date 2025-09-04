@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Popcorn Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #fff8e7;
+    }
+    .bucket-container {
+      position: relative;
+      width: 200px;
+      height: 300px;
+      margin: 20px auto;
+    }
+    #fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0%;
+      background: url('popcorn-fill.png') no-repeat bottom center;
+      background-size: cover;
+      transition: height 1s linear;
+      z-index: 1;
+    }
+    #bucket {
+      position: relative;
+      width: 100%;
+      z-index: 2;
+    }
+    .kernel {
+      position: absolute;
+      width: 30px;
+      z-index: 3;
+      animation: pop 0.8s ease-out forwards;
+    }
+    @keyframes pop {
+      0% { transform: scale(0) translateY(150px); opacity: 0; }
+      60% { transform: scale(1.2) translateY(-20px); opacity: 1; }
+      100% { transform: scale(1) translateY(0); }
+    }
+    button, input {
+      padding: 10px;
+      margin: 10px;
+      border-radius: 10px;
+      font-size: 1em;
+    }
+    button {
+      background: #ffcb05;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #ffb703;
+    }
+  </style>
+</head>
+<body>
+  <h1>Study Habit</h1>
+  <label>Goal Hours: <input type="number" id="goalhours" min="1" max="12"></label>
+  <button onclick="startGoal()">Start Goal</button>
+  <div class="bucket-container">
+    <div id="fill"></div>
+    <img id="bucket" src="bucket.png" alt="Bucket">
+  </div>
+  <p id="progress">0%</p>
+  <script>
+    let progress = 0;
+    let max = 100;
+    let interval;
+    const fill = document.getElementById("fill");
+    const progressText = document.getElementById("progress");
+    const container = document.querySelector('.bucket-container');
+
+    function startGoal() {
+      const hours = document.getElementById('goalhours').value;
+      if (!hours) return alert("Set a goal in hours!");
+
+      clearInterval(interval); // reset if already running
+      progress = 0;
+      fill.style.height = "0%";
+      progressText.textContent = "0%";
+
+      const duration = hours * 60 * 60 * 1000; // hours -> ms
+      const stepTime = 1000; // update every second
+      const stepPercent = max / (duration / stepTime); // % per second
+
+      interval = setInterval(() => {
+        if (progress < max) {
+          progress += stepPercent;
+          if (progress > max) progress = max;
+          fill.style.height = progress + "%";
+          progressText.textContent = Math.round(progress) + "%";
+          // randomly spawn kernels (10% chance each second)
+          if (Math.random() < 0.1) spawnKernel();
+        } else {
+          progressText.textContent = "Bucket full!";
+          clearInterval(interval);
+        }
+      }, stepTime);
+    }
+
+    function spawnKernel() {
+      const kernel = document.createElement('img');
+      kernel.src = 'kernel.png'; // your drawn kernel
+      kernel.className = 'kernel';
+      kernel.style.left = Math.random() * 170 + 'px';
+      container.appendChild(kernel);
+      setTimeout(() => container.removeChild(kernel), 800);
+    }
+  </script>
+</body>
+</html>
