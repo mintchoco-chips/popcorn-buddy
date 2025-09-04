@@ -56,11 +56,11 @@
     button:hover {
       background: #ffb703;
     }
-  </style>
+   </style>
 </head>
 <body>
-  <h1>Study Habit</h1>
-  <label>Goal Hours: <input type="number" id="goalhours" min="1" max="12"></label>
+  <h1>Study Habit Clicker</h1>
+  <label>Goal Clicks: <input type="number" id="goalClicks" min="1" max="100" value="10"></label>
   <button onclick="addPopcorn()">Add Popcorn</button>
   <div class="bucket-container">
     <div id="fill"></div>
@@ -69,47 +69,42 @@
   <p id="progress">0%</p>
   <script>
     let progress = 0;
-    let max = 100;
-    let interval;
+    let goalClicks = 10;
     const fill = document.getElementById("fill");
     const progressText = document.getElementById("progress");
     const container = document.querySelector('.bucket-container');
 
-    function startGoal() {
-      const hours = document.getElementById('goalhours').value;
-      if (!hours) return alert("Set a goal in hours!");
+    document.getElementById('goalClicks').addEventListener('change', function() {
+      goalClicks = Number(this.value) || 10;
+      reset();
+    });
 
-      clearInterval(interval); // reset if already running
-      progress = 0;
-      fill.style.height = "0%";
-      progressText.textContent = "0%";
-
-      const duration = hours * 60 * 60 * 1000; // hours -> ms
-      const stepTime = 1000; // update every second
-      const stepPercent = max / (duration / stepTime); // % per second
-
-      interval = setInterval(() => {
-        if (progress < max) {
-          progress += stepPercent;
-          if (progress > max) progress = max;
-          fill.style.height = progress + "%";
-          progressText.textContent = Math.round(progress) + "%";
-          // randomly spawn kernels (10% chance each second)
-          if (Math.random() < 0.1) spawnKernel();
-        } else {
+    function addPopcorn() {
+      if (progress < goalClicks) {
+        progress++;
+        const percent = (progress / goalClicks) * 100;
+        fill.style.height = percent + "%";
+        progressText.textContent = Math.round(percent) + "%";
+        spawnKernel();
+        if (progress === goalClicks) {
           progressText.textContent = "Bucket full!";
-          clearInterval(interval);
         }
-      }, stepTime);
+      }
     }
 
     function spawnKernel() {
       const kernel = document.createElement('img');
-      kernel.src = 'kernel.png'; // your drawn kernel
+      kernel.src = 'kernel.png';
       kernel.className = 'kernel';
       kernel.style.left = Math.random() * 170 + 'px';
       container.appendChild(kernel);
       setTimeout(() => container.removeChild(kernel), 800);
+    }
+
+    function reset() {
+      progress = 0;
+      fill.style.height = "0%";
+      progressText.textContent = "0%";
     }
   </script>
 </body>
